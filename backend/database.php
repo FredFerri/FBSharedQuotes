@@ -1,9 +1,9 @@
 <?php
 
-$host = 'localhost';
-$user = 'root';
-$pwd = 'kingston';
-$db = 'citations';
+$host = 'your_host';
+$user = 'your_username';
+$pwd = 'your_password';
+$db = 'your_database';
 
 $connection = mysqli_connect($host, $user, $pwd, $db);
 

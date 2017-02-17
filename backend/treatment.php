@@ -85,9 +85,7 @@ if (isset($_POST['newQuote'])) {
     $quote = mysqli_real_escape_string($database->connection, $_POST['newQuote']);
     $source = mysqli_real_escape_string($database->connection, $_POST['newSource']);
     $date = mysqli_real_escape_string($database->connection, $_POST['newDate']);
-    
-    //$sql = "INSERT INTO quote(content, date, author, source) VALUES($quote, $date, $author, $source)";
-    
+        
     if ($database->edit("quote", "content = '$quote', source = '$source', date = '$date', author = '$author'", $id)) {
         echo 'OK';
         }    
@@ -152,9 +150,7 @@ if (isset($_POST['newPseudo'])) {
     else {
         
         echo 'Problème';
-        
     }
-
 
 };
 

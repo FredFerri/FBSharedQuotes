@@ -1,7 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-
 session_start();
 
 require_once 'vendor/autoload.php';
@@ -12,27 +10,24 @@ use Facebook\Helpers\FacebookRedirectLoginHelper;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 
-//$db = new Database();
-//$quotes = $db->find('quote', '*');
-//$quotes_tab = mysqli_fetch_array($quotes);
-//var_dump($quotes_tab);
+// Connexion à la base de données et récupération du premier article non-publié
 
-
-$host = 'localhost';
-$db = 'citations';
-$user = 'root';
-$pwd = 'kingston';
+$host = 'your_host';
+$db = 'your_database';
+$user = 'your_username';
+$pwd = 'your_password';
 
 $connection = mysqli_connect($host, $user, $pwd, $db);
 $sql = "SELECT * FROM quote WHERE statut=0 LIMIT 1";
 $result = mysqli_query($connection, $sql);
+
+//Conversion au bon format de publication de la citation récupérée
 
 $i = 0;
 while ($quotes_tab = mysqli_fetch_array($result)) {
     $tab[$i] = $quotes_tab;
     $i++;
 }
-
 
 $count = count(array_keys($tab)) - 1;
 
@@ -50,10 +45,11 @@ $final_post[$i] = array_values(array_filter($quote[$i]));
 $today_post = join(', ', $final_post[$i]);
 echo $today_post;
 
+//Connexion à l'API Facebook
 
-$appId = '1326861237345505';
+$appId = 'your_app_id';
 
-$appSecret = '18aa7d983b097ba2a3120a3867e58a5d';
+$appSecret = 'your_app_secret_token';
 
 $fb = new Facebook([
     'app_id' => $appId,
@@ -63,42 +59,29 @@ $fb = new Facebook([
 
 $helper = $fb->getRedirectLoginHelper();
 try {
-    //$accessToken = 'EAAS2xfS33OEBACnAhi8Q6LWZAuiJP9UigtBbjNWmdHNIDmupX1ZCkF3sTp7lwTgTEr0tg1Xci7XUEzBlTX0L5NNR8hrTZCxuufWrAJlMCPu9MdNPDOQt9Ro5XWtEAACYFYoiIlOGTIZCv3Js3pv3X3aobj3A0DP4mCSZBr4UiAZAqrQbZAkPLrNjKLYmbReRFcZD';
-    //$oAuth2Client = $fb->getOAuth2Client();
-    $longLivedAccessToken = 'EAAS2xfS33OEBAOrilXrvJKUtKz4fIfjXZCzeQZA18vQfnNZAP61eg8khZArdKmLzuqJf2yJxxGYRplpZCpcDBorwQxdGSdk4m9iw3jCwT17iECGtoziXT0o9jTs7jC5hLbJyuuKuvREBp1Ft9ZBJK4XfzW4yj5ZBbQZD';
+    //Récupérez un user access token à la durée de vie illimitée et insérez le ci-dessous (voir la documentation de l'API Facebook)
+    $longLivedAccessToken = 'your_longlived_token';
 } catch(FacebookResponseException $e) {
-    // When Graph returns an error
+    // Affichage du message d'erreur de l'API Graph
     var_dump($helper->getError());
     echo 'Graph returned an error: ' . $e->getMessage();
     exit;
 } catch(FacebookSDKException $e) {
-    // When validation fails or other local issues
+    // Affichage du message d'erreur en cas de problème de validation lié au Facebook SDK
     var_dump($helper->getError());
     echo 'Facebook SDK returned an error: ' . $e->getMessage();
     exit;
 }
 
+//Récupération de l'autorisation d'accès à la page Fb finale, et publication de la citation
+
 if (isset($longLivedAccessToken)) {
-    // Logged in!
+
     $_SESSION['facebook_access_token'] = (string) $longLivedAccessToken;
-
-    // Now you can redirect to another page and use the
-    // access token from $_SESSION['facebook_access_token']
-
-//    try {
-//        // Returns a `Facebook\FacebookResponse` object
-//        $response = $fb->post('/340154846383112/feed', array('message' => 'test'), $longLivedAccessToken);
-//    } catch(FacebookResponseException $e) {
-//        echo 'Graph returned an error: ' . $e->getMessage();
-//        exit;
-//    } catch(FacebookSDKException $e) {
-//        echo 'Facebook SDK returned an error: ' . $e->getMessage();
-//        exit;
-//    }
-//
+    
     try {
         // Returns a `Facebook\FacebookResponse` object
-        $response = $fb->get('/340154846383112?fields=access_token', $longLivedAccessToken);
+        $response = $fb->get('/{your_page_id}?fields=access_token', $longLivedAccessToken);
     } catch(FacebookResponseException $e) {
         echo 'Graph returned an error: ' . $e->getMessage();
         exit;
@@ -113,7 +96,7 @@ if (isset($longLivedAccessToken)) {
 
     try {
         // Returns a `Facebook\FacebookResponse` object
-        $response = $fb->post('/340154846383112/feed', array('message'=>$today_post), $page_token);
+        $response = $fb->post('/{your_page_id}/feed', array('message'=>$today_post), $page_token);
     } catch(FacebookResponseException $e) {
         echo 'Graph returned an error: ' . $e->getMessage();
         exit;
@@ -122,7 +105,9 @@ if (isset($longLivedAccessToken)) {
         exit;
     }
 
-    echo 'Posted with id: 340154846383112';
+    echo 'Posted with id: your_page_id';
+    
+    //Mise à jour de la base de données (indication de la dernière citation publiée)
 
     $sql_statut = "UPDATE quote SET statut=1 WHERE id=".$quote_id;
     if (mysqli_query($connection, $sql_statut)) {

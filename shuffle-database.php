@@ -1,5 +1,7 @@
 <?php
 
+//Script de tri aléatoire de la base de données (citations)
+
 $host = 'localhost';
 $db = 'citations';
 $user = 'root';

@@ -8,10 +8,10 @@ class Database {
     var $db;
     
     public function __construct() {
-        $this->host = 'localhost';
-        $this->user = 'root';
-        $this->pwd = 'kingston';
-        $this->db = 'citations';
+        $this->host = 'your_host';
+        $this->user = 'your_username';
+        $this->pwd = 'your_password';
+        $this->db = 'your_database';
         $this->connection = mysqli_connect($this->host, $this->user, $this->pwd, $this->db) or die ("Problème de connexion à la base de données:" . mysqli_connect_error());
         return $this->connection;
     }

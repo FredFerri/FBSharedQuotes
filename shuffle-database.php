@@ -2,10 +2,10 @@
 
 //Script de tri aléatoire de la base de données (citations)
 
-$host = 'localhost';
-$db = 'citations';
-$user = 'root';
-$pwd = 'kingston';
+$host = '****';
+$db = '******';
+$user = '****';
+$pwd = '******';
 
 $connection = mysqli_connect($host, $user, $pwd, $db);
 $sql = "SELECT * FROM quote ORDER BY RAND()";
